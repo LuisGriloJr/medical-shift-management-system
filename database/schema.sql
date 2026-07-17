@@ -255,3 +255,61 @@ CREATE INDEX idx_plantoes_periodo
 
 CREATE INDEX idx_plantoes_medico_periodo
     ON plantoes (medico_id, inicio, fim);
+
+
+CREATE TABLE inconsistencias (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+
+    plantao_id BIGINT,
+
+    importacao_id BIGINT,
+
+    tipo ENUM(
+        'CONFLITO_HORARIO',
+        'MAIS_DE_24_HORAS',
+        'VALOR_NAO_ENCONTRADO',
+        'MEDICO_NAO_IDENTIFICADO',
+        'LOCAL_SETOR_NAO_IDENTIFICADO',
+        'HORARIO_INVALIDO',
+        'FORA_DA_COMPETENCIA',
+        'DADO_OBRIGATORIO_AUSENTE',
+        'OUTRO'
+    ) NOT NULL,
+
+    nivel ENUM(
+        'AVISO',
+        'ERRO'
+    ) NOT NULL DEFAULT 'ERRO',
+
+    descricao TEXT NOT NULL,
+
+    linha_origem INT,
+
+    resolvida BOOLEAN NOT NULL DEFAULT FALSE,
+
+    resolvida_em DATETIME,
+
+    observacao_resolucao TEXT,
+
+    criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_inconsistencias_plantao
+        FOREIGN KEY (plantao_id)
+        REFERENCES plantoes(id),
+
+    CONSTRAINT fk_inconsistencias_importacao
+        FOREIGN KEY (importacao_id)
+        REFERENCES importacoes(id)
+);
+
+CREATE INDEX idx_inconsistencias_plantao
+    ON inconsistencias (plantao_id);
+
+CREATE INDEX idx_inconsistencias_importacao
+    ON inconsistencias (importacao_id);
+
+CREATE INDEX idx_inconsistencias_tipo
+    ON inconsistencias (tipo);
+
+CREATE INDEX idx_inconsistencias_resolvida
+    ON inconsistencias (resolvida);
